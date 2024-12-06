@@ -33,18 +33,36 @@ class Author:
         return list({article.magazine.category for article in self._articles})
 
 class Magazine:
+    _all = []
     def __init__(self, name, category):
+        if not isinstance(name, str) or not (2 <= len(name) <= 16):
+            raise ValueError("Name must be a string between 2 and 16 characters.")
+        if not isinstance(category, str) or len(category) == 0:
+            raise ValueError("Category must be a non-empty string.")
         self.name = name
         self.category = category
+        self._articles = []
 
     def articles(self):
-        pass
+        return self._articles
 
     def contributors(self):
-        pass
+        return list({article.author for article in self._articles})
+
 
     def article_titles(self):
-        pass
+        if not self._articles:
+            return None
+        return [article.title for article in self._articles]
 
     def contributing_authors(self):
-        pass
+        from collections import Counter
+        author_counts = Counter(article.author for article in self._articles)
+        authors = [author for author, count in author_counts.items() if count > 2]
+        return authors if authors else None
+    
+    @classmethod
+    def top_publisher(cls):
+        if not cls._all:
+            return None
+        return max(cls._all, key=lambda magazine: len(magazine.articles), default=None)
